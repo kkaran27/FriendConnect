@@ -19,6 +19,8 @@ app.use(morgan('dev'));
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
+const profileRoutes = require('./routes/profile');
+app.use('/api/profile', profileRoutes);
 
 console.log("Starting server.js...");
 

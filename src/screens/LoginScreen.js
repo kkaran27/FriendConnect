@@ -1,20 +1,30 @@
-// screens/LoginScreen.js
-import React, { useState } from 'react';
+// src/screens/LoginScreen.js
+import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
+import { AuthContext } from '../context/AuthContext';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const { signIn } = useContext(AuthContext);
+
   const handleLogin = async () => {
     try {
-      const res = await axios.post('http://192.168.4.44:3000/api/auth/login', { email, password });
-      // Save token using AsyncStorage or context (omitted for brevity)
-      console.log('Token received: ', res.data.token);
-      // Navigate to the profile or home screen here
+      // Make sure the IP/port match your backend
+      const response = await axios.post('http://192.168.4.44:3000/api/auth/login', {
+        email,
+        password
+      });
+      const { token, userId } = response.data;
+
+      // Pass token & userId to signIn
+      await signIn(token, userId);
+
+      // After signIn, the app sees isAuthenticated = true and switches to AppStack
     } catch (error) {
-      Alert.alert('Login Failed', error.response?.data.msg || 'An error occurred');
+      Alert.alert('Login Failed', error.response?.data?.msg || 'An error occurred');
     }
   };
 
@@ -36,17 +46,15 @@ export default function LoginScreen({ navigation }) {
         onChangeText={setPassword}
       />
       <Button title="Login" onPress={handleLogin} />
+
+      {/* Button to go to register screen */}
       <Button title="Go to Register" onPress={() => navigation.navigate('Register')} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
+  container: { flex: 1, justifyContent: 'center', padding: 20 },
   title: { fontSize: 24, marginBottom: 20, textAlign: 'center' },
   input: {
     borderColor: '#ccc',
